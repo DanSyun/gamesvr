@@ -1,0 +1,27 @@
+
+OBJ_DIR=./obj_dep
+$(shell mkdir -p $(OBJ_DIR))
+
+-include $(patsubst %.c,   $(OBJ_DIR)/%.d, $(wildcard *.c))
+-include $(patsubst %.cc,  $(OBJ_DIR)/%.d, $(wildcard *.cc))
+-include $(patsubst %.cpp, $(OBJ_DIR)/%.d, $(wildcard *.cpp))
+
+$(OBJ_DIR)/%.o : %.c
+	gcc -c $(CFLAGS) $(INC) $< -o $@
+
+$(OBJ_DIR)/%.o : %.cc
+	g++ -c $(CXXFLAGS) $(INC) $< -o $@
+
+$(OBJ_DIR)/%.o : %.cpp
+	g++ -c $(CXXFLAGS) $(INC) $< -o $@
+
+$(OBJ_DIR)/%.d : %.c
+	@gcc -MM $(CFLAGS) $(INC) $< | sed 's,\($*\)\.o[ :]*,$(OBJ_DIR)/\1.o $@ : ,g' > $@
+
+$(OBJ_DIR)/%.d : %.cc
+	@g++ -MM $(CXXFLAGS) $(INC) $< | sed 's,\($*\)\.o[ :]*,$(OBJ_DIR)/\1.o $@ : ,g' > $@
+
+$(OBJ_DIR)/%.d : %.cpp
+	@g++ -MM $(CXXFLAGS) $(INC) $< | sed 's,\($*\)\.o[ :]*,$(OBJ_DIR)/\1.o $@ : ,g' > $@
+
+

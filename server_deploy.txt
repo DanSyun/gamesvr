@@ -1,0 +1,20 @@
+#注释用'#'
+
+./eventsvr -c deploy_0.cfg -d
+
+./proxysvr -c deploy_0.cfg -d
+./proxysvr -c deploy_1.cfg -d
+
+./connectsvr -c deploy_machine_0.cfg -d
+./connectsvr -c deploy_lipstick_0.cfg -d
+./connectsvr -c deploy_web_0.cfg -d
+
+./connectwssvr -c deploy_lipstick_0.cfg -d
+
+./dbproxysvr -c deploy_0.cfg -d
+./dbproxysvr -c deploy_1.cfg -d
+
+./machinesvr -c deploy_0.cfg -d
+./lipsticksvr -c deploy_0.cfg -d
+./websvr -c deploy_0.cfg -d
+./promotersvr -c deploy_0.cfg -d

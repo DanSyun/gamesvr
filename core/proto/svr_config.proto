@@ -1,0 +1,109 @@
+enum ENSvrType
+{
+    EN_0_Default            = 0;
+    EN_1_DBProxy            = 1;
+    EN_2_Machine            = 2;
+    EN_3_Hall               = 3;
+    EN_4_Lipstick           = 4;
+    EN_5_Web                = 5;
+    EN_6_Promoter           = 6;
+}
+
+message Addr
+{
+    required string ip      = 1;
+    required uint32 port    = 2;
+}
+
+//////////////////////////////////////////////////////////////////
+// connect 服务器
+message ConnectSvrConfig
+{
+    required uint32 cs_shm_key              = 1;
+    required uint32 cs_shm_size             = 2;
+    required uint32 sc_shm_key              = 3;
+    required uint32 sc_shm_size             = 4;
+
+    required uint32 port                    = 5;
+    required uint32 max_client_num          = 6;
+    required uint32 ep_timeout              = 7;
+    required uint32 max_send_client_num     = 8;
+    required uint32 max_send_client_retry   = 9;
+
+    required bool   heart_beat_check        = 10;
+}
+
+//////////////////////////////////////////////////////////////////
+// proxy 服务器
+message LogicSvr
+{
+    required ENSvrType  svr_type    = 1;
+    required uint32     svr_num     = 2;
+}
+message ProxySvrConfig
+{
+    required uint32 svr_id          = 1;
+    required uint32 port            = 2;
+    required uint32 ep_timeout      = 3 [default = 5];
+
+    repeated LogicSvr svrs        = 4;
+}
+
+//////////////////////////////////////////////////////////////////
+// event 服务器
+message EventSvrConfig
+{
+    required uint32 port            = 1;
+    required string mongo_url       = 2;
+    required string mongo_db_name   = 3 [default = "event"];
+    required uint32 loop_sleep_usec = 4 [default = 1000];
+}
+
+//////////////////////////////////////////////////////////////////
+// 逻辑 服务器
+message LogicSvrConfig
+{
+    // 重要配置
+    required ENSvrType  svr_type            = 1;
+    required uint32     svr_id              = 2;
+    
+    required uint32     msg_shm_key         = 3;
+    required uint32     msg_shm_size        = 4 [default = 2048];
+    required uint32	    cs_shm_key          = 5;
+    required uint32     cs_shm_size         = 6 [default = 1024];
+    required uint32	    sc_shm_key          = 7;
+    required uint32     sc_shm_size         = 8 [default = 4096];
+    required uint32	    cs_shm_key_ws       = 9;
+    required uint32     cs_shm_size_ws      = 10 [default = 1024];
+    required uint32	    sc_shm_key_ws       = 11;
+    required uint32     sc_shm_size_ws      = 12 [default = 4096];
+    
+    repeated Addr       proxy_addrs         = 20;
+    repeated Addr       event_addrs         = 21;
+    
+    optional bool       use_heart_beat      = 25;
+    optional uint32     heart_beat_interval = 26;
+
+    // 对象池配置
+    required uint32     max_session_num     = 30;
+    required uint32     session_shm_key     = 31;
+    required uint32     max_timer_num       = 32;
+    required uint32     timer_shm_key       = 33;
+    optional uint32     max_machine_num     = 34;
+    optional uint32     machine_shm_key     = 35;
+    optional uint32     max_player_num      = 36;
+    optional uint32     player_shm_key      = 37;
+}
+
+message PBSvrConfig
+{
+    oneof svr_conf_union
+    {
+        ConnectSvrConfig    connect = 1;
+        ProxySvrConfig      proxy   = 2;
+        EventSvrConfig      event   = 3;
+        LogicSvrConfig      logic   = 4;
+    }
+}
+
+

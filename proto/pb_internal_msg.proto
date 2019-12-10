@@ -1,0 +1,86 @@
+message InternalLogout
+{
+    optional uint64 uid         = 1;
+}
+
+message InternalClearBuyIn
+{
+    optional uint64 player_id   = 1;
+    optional uint64 machine_id  = 2;
+}
+
+message InternalStartTimeout
+{
+    optional uint64 uid         = 1;
+}
+
+message InternalEndTimeout
+{
+    optional uint64 uid         = 1;
+}
+
+message InternalLotteryTimeout
+{
+    optional uint64 uid         = 1;
+}
+
+message InternalLotteryEndTimeout
+{
+    optional uint64 uid         = 1;
+}
+
+message InternalLotteryAniTimeout
+{
+    optional uint64 uid         = 1;
+}
+
+message InternalBuyTimeout
+{
+    optional uint64 uid         = 1;
+}
+
+message InternalBuyAniTimeout
+{
+    optional uint64 uid         = 1;
+}
+
+message InternalGameRefund
+{
+    optional uint64 player_id   = 1;
+    optional uint64 refund_num  = 2;
+}
+
+message InternalUpdateMachinePirze
+{
+    optional uint64 machine_id  = 1;
+    optional uint64 value       = 2;
+    optional uint32 num         = 3;
+    optional uint64 income      = 4;
+}
+
+message InternalGameRecord
+{
+    optional uint64 player_id   = 1;
+    optional uint64 prize_id    = 2;
+    optional bool   get_prize   = 3;
+}
+
+message PBInternalMsg
+{
+    oneof msg_union
+    {
+        InternalLogout                  internal_logout                     = 20000; // 街机/用户登出
+        InternalClearBuyIn              internal_clear_buy_in               = 20002; // 用户登出清除投币
+        InternalStartTimeout            internal_start_timeout              = 20003; // 开始游戏超时
+        InternalEndTimeout              internal_end_timeout                = 20004; // 游戏结束超时
+        InternalLotteryTimeout          internal_lottery_timeout            = 20005; // 抽奖超时
+        InternalLotteryEndTimeout       internal_lottery_end_timeout        = 20011; // 抽奖结束超时
+        InternalLotteryAniTimeout       internal_lottery_ani_timeout        = 20007; // 抽奖动画超时
+        InternalBuyTimeout              internal_buy_timeout                = 20006; // 保底购买超时
+        InternalBuyAniTimeout           internal_buy_ani_timeout            = 20008; // 保底购买动画超时
+        InternalGameRefund              internal_game_refund                = 20009; // 游戏退款
+        InternalUpdateMachinePirze      internal_update_machine_prize       = 20010; // 累计出奖次数
+        InternalGameRecord              internal_game_record                = 20012; // 游戏记录
+    }
+}
+

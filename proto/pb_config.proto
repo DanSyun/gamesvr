@@ -1,0 +1,44 @@
+import "pb_common.proto";
+import "pb_db_data.proto";
+
+message PBGameAddr
+{
+    optional ENGameType     game_type   = 1;
+    repeated string         hosts       = 2;
+    repeated uint32         ports       = 3;
+}
+message PBConfigGameAddr
+{
+    repeated PBGameAddr     addrs       = 1;
+}
+
+message PBMysqlAddr
+{
+    optional string         table       = 1;
+    optional string         db          = 2;
+    optional string         host        = 3;
+    optional uint32         port        = 4;
+    optional string         user        = 5;
+    optional string         password    = 6;
+}
+message PBConfigMysqlAddr
+{
+    repeated PBMysqlAddr    addrs       = 1;
+}
+
+message PBConfigLipstick
+{
+    optional uint64         cost        = 1;
+    repeated DBPrize        prizes      = 2;
+}
+
+message PBConfig
+{
+    oneof config_union
+    {
+        PBConfigGameAddr    game_addr   = 1;    // 游戏地址配置
+        PBConfigMysqlAddr   mysql_addr  = 2;    // mysql地址配置
+        PBConfigLipstick    lipstick    = 3;    // 口红机初始数据配置
+    }
+}
+

@@ -1,0 +1,274 @@
+import "pb_common.proto";
+
+
+enum ENResult
+{
+    EN_Result_OK            = 1;
+    EN_Result_Invalid_Msg   = 2;    // 解包出错
+    EN_Result_Auth_Failed   = 3;    // 登录鉴权失败
+    EN_Result_Not_Login     = 4;    // 未登录
+    EN_Result_Sys_Err       = 5;    // 系统错误
+    EN_Result_Server_Full   = 6;    // 服务器已满
+
+    EN_Result_Machine_State_Diff    = 7;    // 请求与街机状态不匹配
+    EN_Result_Machine_No_Player     = 8;    // 街机上没有玩家
+    EN_Result_Invalid_Prize_Id      = 9;
+    EN_Result_Gold_Not_Enough       = 10;
+    EN_Result_Invalid_Params        = 11;
+    EN_Result_Invalid_Req           = 12;
+}
+
+////////////////////////////////////////////////////////////////////
+// 通用协议
+message CSReqHeartBeat
+{
+    optional bool   haha        = 1;
+}
+message CSRspHeartBeat
+{
+    optional uint32 timestamp   = 1;
+}
+
+message CSNotifyCommonErr
+{
+}
+
+enum ENLogoutReason
+{
+    EN_Logout_Default           = 0;
+    EN_Logout_Multi_Login       = 1; // 重复登录
+    EN_Logout_Heart_Beat        = 2; // 心跳超时
+}
+message CSNotifyLogout
+{
+    optional ENLogoutReason reason      = 1;
+}
+
+////////////////////////////////////////////////////////////////////
+// 街机协议
+message CSReqMLogin
+{
+    optional string token       = 1;
+}
+message CSRspMLogin
+{
+    optional bool           use_heart_beat      = 1;	// 是否使用心跳
+    optional uint32         heart_beat_interval = 2;	// 心跳间隔
+    optional uint32         game_type           = 3;	// 游戏类型，common.proto 中定义，ENGameType
+    optional string         game_host           = 4;	// 游戏地址
+    optional uint32         game_port           = 5;
+}
+
+message CSReqMLoginGame
+{
+    optional string token       = 1;
+}
+message CSLottery
+{
+    repeated PBAward awards         = 1;
+}
+message CSLipstickInfo
+{
+    optional uint64 cost            = 1;
+    repeated uint32 prize_ids       = 2;
+    repeated CSLottery lotterys     = 3; // 抽奖的奖品列表
+    optional uint32 max_retry_time  = 4; // 最大复活次数
+}
+message CSRspMLoginGame
+{
+    optional bool   use_heart_beat          = 1;
+    optional uint32 heart_beat_interval     = 2;
+    optional CSLipstickInfo lipsitck_info   = 3;
+}
+
+message CSNotifyMPlayerLogin
+{
+    optional uint64 uid             = 1;
+    optional string nick            = 2;
+    optional string pic_url         = 3;
+    optional uint32 timeout         = 4; // 到开始之间倒计时
+    optional uint32 prize_num       = 5; // 可领奖品数
+}
+
+message CSNotifyMPlayerBuyIn
+{
+    optional uint64 cur_buy_in      = 1; // 当前投币总数
+}
+
+message CSReqStartLipstick
+{
+    optional uint32 prize_id        = 1;
+}
+message CSRspStartLipstick
+{
+    optional bool   can_get_prize   = 1;
+    optional uint64 left_buy_in     = 2;
+    repeated uint32 round_timeouts  = 3; // 每轮倒计时
+    repeated uint32 round_knives    = 5; // 每轮飞刀数
+    optional uint32 retry_timeout   = 4; // 复活倒计时
+    optional bool   retry_switch    = 6; // 复活开关
+}
+
+message CSReqEndLipstick
+{
+    optional bool   get_prize       = 1;
+}
+message CSRspEndLipstick
+{
+    optional uint32 next_step       = 3; // 下一步，1: 下一轮，2: 抽奖，3: 保底购买
+    optional uint32 timeout         = 1; // 下一步倒计时
+    optional uint64 prize_id        = 2; // next_step 1: 中奖id，没中不传；next_step 3: 保底购买id
+    optional uint32 prize_num       = 6; // 游戏成功礼品数量更新
+    optional uint64 buy_cost        = 4; // 保底购买需要的价格
+    optional uint32 game_succ_timeout       = 7; // next_step 1时通关成功等待时间
+}
+
+message CSReqPlayerLogout
+{
+    optional bool   haha            = 1;
+}
+message CSRspPlayerLogout
+{
+}
+
+message CSNotifyPlayerLogout
+{
+}
+
+message CSReqRetryLipstick
+{
+    optional uint32 round           = 1; // 第几轮，1、2、3、...
+}
+message CSRspRetryLipstick
+{
+    optional bool   can_get_prize   = 1;
+    optional uint64 left_buy_in     = 2;
+    optional uint32 retry_time      = 3; // 当前复活次数
+}
+
+message CSReqLottery
+{
+    optional bool       haha        = 1;
+}
+message CSRspLottery
+{
+    repeated PBAward    awards      = 2;
+    optional uint32     prize_num   = 1; // 更新礼品数量，未中奖没传
+    optional uint32     timeout     = 3;
+    optional int32      award_index = 4; // 第几个奖品
+}
+
+message CSReqLotteryEnd
+{
+    optional bool       haha        = 1;
+}
+message CSRspLotteryEnd
+{
+    optional uint32     timeout     = 1;
+}
+
+message CSReqBuyPrize
+{
+    optional bool       buy         = 1; // 是否购买
+}
+message CSRspBuyPrize
+{
+    optional uint64     prize_id    = 2;
+    optional uint32     prize_num   = 1; // 更新礼品数量
+    optional uint32     timeout     = 3;
+    optional uint64     left_buy_in = 4; // 剩余金币
+}
+
+message CSReqLoginGame
+{
+    optional string token       = 1;
+}
+message CSRspLoginGame
+{
+    optional uint32 heart_beat_interval     = 1; // 心跳间隔
+    optional uint64 gold                    = 2; // 金币数量
+    optional CSLipstickInfo lipsitck_info   = 3;
+    optional uint32 prize_num               = 4; // 礼品数量
+}
+
+message CSNotifyUpdateMachine
+{}
+message CSNotifyDeleteMachine
+{}
+message CSNotifyRestartMachine
+{}
+
+message CSNotifyGold
+{
+    optional uint64 gold    = 1;
+}
+
+message CSNotifyPoint
+{
+    optional uint32 point   = 2;
+}
+
+////////////////////////////////////////////////////////////////////
+// 大协议
+message PBCSMsg
+{
+    optional uint64     uid         = 1;    // 唯一id
+    optional uint32     cli_ver     = 2;    // 客户端版本
+    optional uint32     cli_seq     = 3;    // 请求序列号
+    optional uint32     cmd         = 4;    // 回复union case
+    optional uint32     result      = 5 [default = 1];   // 回复结果ENResult
+    oneof msg_union
+    {
+        CSReqHeartBeat      cs_req_heart_beat       = 1000;	// 心跳
+        CSRspHeartBeat      cs_rsp_heart_beat       = 1001;
+        CSNotifyCommonErr   cs_notify_common_err    = 1002;	// 通用错误（如服务器内部错误）
+        CSNotifyLogout      cs_notify_logout        = 1003; // 踢出，断开连接
+        CSNotifyPoint       cs_notify_point         = 2000;
+
+        // 街机协议
+        CSNotifyUpdateMachine   cs_notify_update_machine    = 1029; // 通知街机数据更新
+        CSNotifyDeleteMachine   cs_notify_delete_machine    = 1030; // 通知街机删除
+        CSNotifyRestartMachine  cs_notify_restart_machine   = 1031; // 通知街机重启
+        CSReqMLogin             cs_req_m_login              = 1010;	// 登录街机
+        CSRspMLogin             cs_rsp_m_login              = 1011;
+        CSReqMLoginGame         cs_req_m_login_game         = 1012; // 登录游戏
+        CSRspMLoginGame         cs_rsp_m_login_game         = 1013;
+        CSNotifyMPlayerLogin    cs_notify_m_player_login    = 1014; // 用户登录游戏
+        CSNotifyMPlayerBuyIn    cs_notify_m_player_buy_in   = 1015; // 用户投币
+        CSReqStartLipstick      cs_req_start_lipstick       = 1016; // 口红机开始
+        CSRspStartLipstick      cs_rsp_start_lipstick       = 1017;
+        CSReqEndLipstick        cs_req_end_lipstick         = 1018; // 结束
+        CSRspEndLipstick        cs_rsp_end_lipstick         = 1019;
+        CSReqPlayerLogout       cs_req_player_logout        = 1020; // 请求退出
+        CSRspPlayerLogout       cs_rsp_player_logout        = 1021;
+        CSNotifyPlayerLogout    cs_notify_player_logout     = 1022; // 通知退出(超时等)
+        CSReqRetryLipstick      cs_req_retry_lipstick       = 1023; // 请求续命
+        CSRspRetryLipstick      cs_rsp_retry_lipstick       = 1024;
+        CSReqLottery            cs_req_lottery              = 1025; // 抽奖
+        CSRspLottery            cs_rsp_lottery              = 1026;
+        CSReqLotteryEnd         cs_req_lottery_end          = 1032; // 抽奖结束
+        CSRspLotteryEnd         cs_rsp_lottery_end          = 1033;
+        CSReqBuyPrize           cs_req_buy_prize            = 1027; // 保底购买
+        CSRspBuyPrize           cs_rsp_buy_prize            = 1028;
+
+        // H5协议
+        CSReqLoginGame          cs_req_login_game_h5        = 5000; // 登录游戏
+        CSRspLoginGame          cs_rsp_login_game_h5        = 5001;
+        CSReqStartLipstick      cs_req_start_lipstick_h5    = 5002; // 口红机开始
+        CSRspStartLipstick      cs_rsp_start_lipstick_h5    = 5003;
+        CSReqEndLipstick        cs_req_end_lipstick_h5      = 5004; // 结束
+        CSRspEndLipstick        cs_rsp_end_lipstick_h5      = 5005;
+        CSReqRetryLipstick      cs_req_retry_lipstick_h5    = 5006; // 请求续命
+        CSRspRetryLipstick      cs_rsp_retry_lipstick_h5    = 5007;
+        CSReqLottery            cs_req_lottery_h5           = 5008; // 抽奖
+        CSRspLottery            cs_rsp_lottery_h5           = 5009;
+        CSReqLotteryEnd         cs_req_lottery_end_h5       = 5013; // 抽奖结束
+        CSRspLotteryEnd         cs_rsp_lottery_end_h5       = 5014;
+        CSReqBuyPrize           cs_req_buy_prize_h5         = 5010; // 保底购买
+        CSRspBuyPrize           cs_rsp_buy_prize_h5         = 5011;
+        CSNotifyGold            cs_notify_gold              = 5012; // 通知金币
+        CSReqPlayerLogout       cs_req_player_logout_h5     = 5015; // 请求退出
+        CSRspPlayerLogout       cs_rsp_player_logout_h5     = 5016;
+    }
+}
+

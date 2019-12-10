@@ -1,0 +1,187 @@
+import "pb_common.proto";
+
+message DBDataHead
+{
+    optional uint64         version     = 1;
+}
+
+//////////////////////////////////////////////////////////////////
+// 玩家数据
+message DBBaseInfo
+{
+    optional DBDataHead     head            = 1;
+
+    optional string         nick            = 2;
+    optional string         pic_url         = 3;
+
+    optional uint32         gamesvr_type    = 4; // 用户所在游戏server类型
+    optional uint32         gamesvr_id      = 5; // 用户所在游戏server id
+    optional uint64         machine_id      = 6; // 用户所在街机id
+
+    optional uint64         promoter_id     = 7;
+}
+
+message DBBuyIn
+{
+    optional uint64         machine_id      = 1;
+    optional uint64         num             = 2;
+    optional uint32         update_time     = 3;
+}
+message DBGoldInfo
+{
+    optional DBDataHead     head            = 1;
+
+    optional uint64         gold            = 2;
+    repeated DBBuyIn        buy_ins         = 3;
+    optional uint64         total_charge    = 4; // 总充值金币
+    optional uint64         total_giving    = 5; // 总赠送金币
+    optional uint64         total_consume   = 6; // 总消耗金币
+    optional uint64         total_prize_value = 7; // 总中奖金币价值
+}
+
+message DBPrize
+{
+    optional uint64         prize_id        = 1;
+    optional uint32         prize_num       = 2;
+    optional uint32         rate            = 3;
+    optional uint64         cost            = 4; // 单次游戏消耗
+    repeated string         tags            = 5;
+    optional uint32         sort            = 6;
+}
+message DBPrizeInfo
+{
+    optional DBDataHead     head            = 1;
+
+    repeated DBPrize        prizes          = 2;
+}
+
+message DBPlay
+{
+    optional uint64         prize_id        = 1;
+    optional uint32         timestamp       = 2;
+    optional bool           get_prize       = 3;
+}
+message DBGameRecord
+{
+    optional uint32         game_type       = 1;
+    repeated DBPlay         plays           = 2;
+}
+message DBGameInfo
+{
+    optional DBDataHead     head            = 1;
+
+    repeated DBGameRecord   records         = 2;
+}
+
+//////////////////////////////////////////////////////////////////
+// 街机数据
+message DBMBaseInfo
+{
+    optional DBDataHead     head                = 1;
+    optional uint32         machinesvr_id       = 2; // 街机所在machine serverid
+    optional uint32         gamesvr_id          = 3; // 街机所在游戏serverid
+    optional uint32         gamesvr_type        = 4; // 街机所在游戏server类型(proxy类型不是game类型)
+    optional uint32         total_prize_num     = 5;
+    optional uint32         total_prize_value   = 6;
+    optional uint64         total_income        = 7;
+    optional uint64         promoter_id         = 8;
+    optional uint32         game_type           = 10;
+}
+message DBLotteryAward
+{
+    repeated PBAward        awards          = 2;
+    optional uint32         rate            = 1; // 概率
+    optional uint32         sum_rate        = 3; // 概率累积
+}
+message DBMLipstickInfo
+{
+    optional DBDataHead     head            = 1;
+
+    optional uint64         cost            = 2; // 单局消耗
+    repeated DBPrize        prizes          = 3; // 礼品列表
+    repeated DBLotteryAward lottery_awards  = 4; // 抽奖奖品列表
+    optional uint64         buy_consume     = 5; // 保底购买需要的消耗
+    optional uint32         buy_fail        = 6; // 保底购买需要的连续失败次数
+    optional uint32         buy_time        = 7; // 保底购买需要的连续失败时间
+    repeated uint32         round_knives    = 8; // 每轮飞刀数
+    repeated uint32         round_timeouts  = 9; // 每轮游戏超时时间
+
+    optional uint32         start_timeout       = 10; // 等待开始超时时间
+    optional uint32         retry_timeout       = 11; // 等待复活超时时间
+    optional uint32         lottery_timeout     = 12; // 抽奖等待超时时间
+    optional uint32         lottery_ani_timeout = 13; // 抽奖动画超时
+    optional uint32         buy_timeout         = 14; // 保底购买等待超时时间
+    optional uint32         buy_ani_timeout     = 15; // 保底购买动画超时时间
+    optional uint32         game_succ_timeout   = 16; // 游戏成功后等待时间
+
+    optional bool           retry_switch        = 17; // 续命开关
+    optional bool           lottery_switch      = 18; // 抽奖开关
+    optional bool           buy_switch          = 19; // 保底开关
+    optional uint32         max_retry_time      = 20; // 续命最大次数
+}
+
+//////////////////////////////////////////////////////////////////
+// 代理数据
+message DBPBaseInfo
+{
+    optional DBDataHead     head            = 1;
+
+    optional uint64         total_charge    = 2; // 总充值金币
+    optional uint64         total_giving    = 3; // 总赠送金币
+}
+
+//////////////////////////////////////////////////////////////////
+// 全局数据
+message DBPlayerPrize
+{
+    optional bytes          player_nick     = 1;
+    optional bytes          prize_name      = 2;
+    optional uint32         seq             = 3;
+}
+message DBGLipPrizeInfo
+{
+    optional DBDataHead     head            = 1;
+
+    repeated DBPlayerPrize  player_prizes   = 2;
+    optional uint32         seq             = 3;
+}
+
+// 玩家数据
+message PBDBData
+{
+    optional uint64             uid                 = 1;    // 唯一id
+
+    // 玩家数据
+    optional DBBaseInfo         base_info           = 10;   // 
+    optional DBGoldInfo         gold_info           = 11;   // 金币信息
+    optional DBPrizeInfo        prize_info          = 12;   // 礼品信息
+    optional DBGameInfo         game_info           = 13;   // 游戏记录
+
+    // 街机数据
+    optional DBMBaseInfo        m_base_info         = 100;
+    optional DBMLipstickInfo    m_lipstick_info     = 101;  // 口红机数据
+
+    // 代理数据
+    optional DBPBaseInfo        p_base_info         = 1000; // 
+
+    // 全局数据
+    optional DBGLipPrizeInfo    g_lip_prize_info    = 2000; // 口红机中奖信息
+}
+// db数据key
+message PBDBKey
+{
+    oneof DBKey_union
+    {
+        DBBaseInfo          base_info           = 10;
+        DBGoldInfo          gold_info           = 11;
+        DBPrizeInfo         prize_info          = 12;
+        DBGameInfo          game_info           = 13;
+
+        DBMBaseInfo         m_base_info         = 100;
+        DBMLipstickInfo     m_lipstick_info     = 101;
+
+        DBPBaseInfo         p_base_info         = 1000;
+
+        DBGLipPrizeInfo     g_lip_prize_info    = 2000;
+    }
+}

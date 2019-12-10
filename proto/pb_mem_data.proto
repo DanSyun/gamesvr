@@ -1,0 +1,100 @@
+import "pb_event.proto";
+import "pb_db_data.proto";
+import "pb_cs_msg.proto";
+import "pb_ss_msg.proto";
+import "pb_internal_msg.proto";
+import "pb_common.proto";
+
+
+message PBDBProcess
+{
+    optional uint64         uid             = 1;
+    repeated uint32         keys            = 2;
+    optional PBDBData       player          = 3;
+}
+
+enum ENSessionState
+{
+    EN_Session_On_Message       = 1;
+    EN_Session_Wait_Response    = 2;
+    EN_Session_Wait_Query       = 3;
+    EN_Session_Wait_Save        = 4;
+}
+message PBSession
+{
+    optional uint32         uid             = 1; // 客户端uid
+    optional uint32         session_id      = 2; // 会话id
+    optional uint32         update_time     = 3; // 超时检查
+    optional ENSessionState session_state   = 4; // 消息处理状态
+    optional uint32         logic_state     = 5; // 业务自定义状态
+    optional uint32         msg_id          = 6; // 消息id
+
+    optional PBCSMsg        cs_msg          = 10; // 客户端请求
+    optional PBCSMsg        cs_response     = 11; // 客户端回复
+    optional PBSSMsg        ss_msg          = 12; // 服务器请求
+    optional PBSSMsg        ss_response     = 13; // 服务器回复
+    optional PBSSMsg        web_msg         = 14; // web 请求
+    optional PBInternalMsg  inter_msg       = 15;
+
+    repeated PBDBProcess    db_processs     = 20; // db处理信息
+    optional uint32         process_index   = 21; // 当前处理dbmsg索引
+    optional uint32         redo_count      = 22;
+
+    repeated PBEvent        events          = 30;
+}
+
+message PBTimer
+{
+    optional uint32         timer_id        = 1;
+    optional uint64         timeout_msec    = 2;
+    optional PBInternalMsg  msg             = 3;
+}
+
+enum ENGameState
+{
+    EN_State_Wait_Player        = 0;
+    EN_State_Wait_Start         = 1;
+    EN_State_Wait_End           = 2;
+    EN_State_Wait_Lottery       = 3;
+    EN_State_Wait_Lottery_End   = 7;
+    EN_State_Wait_Lottery_Ani   = 4;
+    EN_State_Wait_Buy           = 5;
+    EN_State_Wait_Buy_Ani       = 6;
+}
+message PBMachine
+{
+    optional uint64         machine_id          = 1;
+    optional uint64         heart_beat_time     = 2;
+    optional uint32         game_state          = 3;
+    optional uint32         timer_id            = 4;
+
+    optional PBDBData       machine             = 10;
+    optional uint64         player_id           = 11;
+    optional uint64         prize_id            = 12;
+    optional bool           can_get_prize       = 13;
+    optional uint64         total_consume       = 14;
+    optional uint32         total_fail          = 15;
+    optional uint32         total_time          = 16;
+    optional uint32         update_time         = 17;
+    optional uint32         retry_time          = 18;
+    repeated PBAward        lottery_awards      = 19;
+}
+
+message PBPlayer
+{
+    optional uint64         player_id       = 1;
+    optional uint64         heart_beat_time = 2;
+    optional uint32         game_state      = 3;
+    optional uint32         timer_id        = 4;
+
+    optional PBDBData       machine         = 10;
+    optional uint64         prize_id        = 12;
+    optional bool           can_get_prize   = 13;
+    optional uint64         total_consume   = 14;
+    optional uint32         total_fail      = 15;
+    optional uint32         total_time      = 16;
+    optional uint32         update_time     = 17;
+    optional uint32         retry_time      = 18;
+    optional bool           pre_end         = 19;
+}
+

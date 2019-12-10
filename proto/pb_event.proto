@@ -1,0 +1,20 @@
+
+message PBNumField
+{
+    optional string key     = 1;
+    optional int64  value   = 2;
+}
+
+message PBStrField
+{
+    optional string key     = 1;
+    optional string value   = 2;
+}
+
+message PBEvent
+{
+    optional string     event_name = 1;
+    repeated PBNumField num_fields = 2;
+    repeated PBStrField str_fields = 3;
+}
+

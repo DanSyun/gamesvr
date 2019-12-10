@@ -1,0 +1,30 @@
+
+PROTOC:=$(PRO_DIR)/proto/protoc
+
+CFLAGS		+= -g -std=c11 -Wall -pipe -fpermissive -D_GLIBCXX_USE_CXX11_ABI=0
+CXXFLAGS	+= -g -std=c++11 -Wall -pipe -fpermissive -D_GLIBCXX_USE_CXX11_ABI=0
+
+LIB_DIR	:=	$(PRO_DIR)/lib
+
+INC :=	-I$(PRO_DIR)/core/proto					\
+		-I$(PRO_DIR)/core/src					\
+		-I$(PRO_DIR)/proto						\
+		-I$(PRO_DIR)/common						\
+		-I$(PRO_DIR)/include					\
+		-I$(PRO_DIR)/include/jemalloc			\
+		-I$(PRO_DIR)/include/google				\
+		-I$(PRO_DIR)/include/mongoc				\
+		-I$(PRO_DIR)/include/bson				\
+		-I$(PRO_DIR)/include/openssl			\
+		-I$(PRO_DIR)/include/log4cplus			\
+		-I$(PRO_DIR)/include/mysqlpp			\
+		-I$(PRO_DIR)/include/mysqlconnector		\
+		-I$(PRO_DIR)/include/hpp				\
+
+
+LIB :=	-L$(LIB_DIR) -Wl,-R$(LIB_DIR)						\
+		-lcommon -lproto -lcore	-lcoreproto					\
+		-lssl -lcrypto -lleveldb -lprotobuf -llog4cplus		\
+		-lmysqlpp -lmysqlclient								\
+		-ljemalloc -lm -lpthread -ldl -lrt					\
+

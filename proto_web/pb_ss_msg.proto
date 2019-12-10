@@ -1,0 +1,242 @@
+import "pb_common.proto";
+import "pb_db_data.proto";
+
+enum ENKVDBResult
+{
+    EN_KVDB_Sucess          = 1;
+    EN_KVDB_Failed          = 2;
+    EN_KVDB_Ver_Diff        = 3;
+}
+
+enum ENGlobalUid
+{
+    EN_Uid_Lip_Prize        = 1;    // H5口红机中奖
+}
+
+message PBKVDBData
+{
+    optional uint32         key         = 1;
+    optional bytes          value       = 2;
+    optional uint32         version     = 3;
+    optional uint32         update_time = 4;
+}
+
+message SSReqQuery
+{
+    optional uint64         uid         = 1;
+    repeated PBKVDBData     datas       = 2;
+}
+message SSRspQuery
+{
+    optional ENKVDBResult   result      = 1;
+    optional uint64         uid         = 2;
+    repeated PBKVDBData     datas       = 3;
+}
+
+message SSReqSave
+{
+    optional uint64         uid         = 1;
+    repeated PBKVDBData     datas       = 2;
+}
+message SSRspSave
+{
+    optional ENKVDBResult   result      = 1;
+    optional uint64         uid         = 2;
+    repeated PBKVDBData     datas       = 3;
+}
+
+message SSNotifyKickPlayer
+{
+    optional uint64         player_id   = 1;
+    optional uint64         machine_id  = 2;
+}
+
+message SSNotifyUpdateMachine
+{
+    optional uint64         machine_id  = 1;
+}
+
+message SSNotifyPromoterGold
+{
+    optional uint64         promoter_id = 1;
+    optional uint64         charge_num  = 2;
+    optional uint64         giving_num  = 3;
+}
+
+message SSNotifyPlayerGold
+{
+    optional uint64 uid     = 1;
+    optional uint64 gold    = 2;
+}
+
+message SSGMCommand
+{
+    optional string         cmd         = 1;
+    optional uint32         result      = 2;
+}
+
+enum ENWebResult
+{
+    EN_Web_OK                       = 1;
+    EN_Web_DB_Error                 = 2;    // DB错误
+    EN_Web_Machine_Not_Online       = 3;    // 街机不在线
+    EN_Web_Machine_In_Use           = 4;    // 街机已有其他玩家登录
+    EN_Web_Player_Not_Login         = 5;    // 玩家未登录街机
+    EN_Web_Player_Gold_Not_Enough   = 6;    // 玩家金币不够
+    EN_Web_Machine_State_Error      = 7;
+    EN_Web_Player_Prize_Not_Enough  = 8;    // 玩家礼品不够
+    EN_Web_Invalid_Params           = 9;
+}
+message WebReqPlayerLogin
+{
+    optional uint64 uid         = 1;
+    optional uint64 machine_id  = 2;
+}
+message WebRspPlayerLogin
+{
+    optional uint32   result    = 1;
+    optional PBDBData player    = 2;
+}
+
+message WebReqPlayerBuyIn
+{
+    optional uint64 uid         = 1;
+    optional uint64 machine_id  = 2;
+    optional uint64 buy_in      = 3;
+}
+message WebRspPlayerBuyIn
+{
+    optional uint32 result      = 1;
+}
+
+message WebNotifyPlayerInfo
+{
+    optional uint64 uid         = 1;
+    optional string nick        = 2;
+    optional string pic_url     = 3;
+}
+
+message WebReqPlayerCharge
+{
+    optional uint64     uid     = 1;
+    repeated PBAward    awards  = 2;
+    optional uint32     reason  = 3;
+}
+message WebRspPlayerCharge
+{
+    optional uint32     result  = 1;
+}
+
+message WebNotifyUpdateConfig
+{
+    optional string     name    = 1; // "prize" 礼品库配置
+}
+
+message WebReqQueryDBData
+{
+    repeated uint64     uids    = 1;
+}
+message WebRspQueryDBData
+{
+    optional uint32     result  = 1;
+    repeated PBDBData   datas   = 2;
+}
+
+message WebReqSaveDBData
+{
+    optional uint64     uid     = 1;
+    optional PBDBData   data    = 2;
+}
+message WebRspSaveDBData
+{
+    optional uint32     result  = 1;
+}
+
+message WebReqSubPrize
+{
+    optional uint64     uid         = 1;
+    repeated DBPrize    sub_prizes  = 2;    // 要扣的增量礼品
+    optional uint32     reason      = 3;    // 操作原因
+                                            // EN_Acc_GM_Sub       = 3,    // GM扣
+                                            // EN_Acc_Cash_Prize   = 8,    // 兑换礼品
+}
+message WebRspSubPrize
+{
+    optional uint32     result  = 1;
+    repeated DBPrize    prizes  = 2;    // 全量礼品
+}
+
+message WebNotifyDeleteMachine
+{
+    optional uint64 machine_id  = 1;
+}
+
+message WebNotifyRestartMachine
+{
+    optional uint64 machine_id  = 1;
+}
+
+message WebNotifyPoint
+{
+    optional uint64 uid         = 1;
+    optional uint32 point       = 2;
+    optional uint64 machine_id  = 3; // web不填
+}
+
+enum SSMsgType
+{
+    EN_SS_Request   = 1;
+    EN_SS_Response  = 2;
+}
+message PBSSMsg
+{
+    optional uint64         uid     = 1;
+    optional SSMsgType      type    = 2;
+    oneof msg_union
+    {
+        // 服务器间协议
+        SSReqQuery              ss_req_query                = 10000;
+        SSRspQuery              ss_rsp_query                = 10001;
+        SSReqSave               ss_req_save                 = 10002;
+        SSRspSave               ss_rsp_save                 = 10003;
+        SSNotifyKickPlayer      ss_notify_kick_player       = 11000; // 通知玩家退出
+        SSNotifyUpdateMachine   ss_notify_update_machine    = 11001; // 通知街机更新
+        SSNotifyPromoterGold    ss_notify_promoter_gold     = 11002; // 通知更新代理金币统计
+        SSNotifyPlayerGold      ss_notify_player_gold       = 11003; // 通知玩家金币
+
+        // 后台协议
+        SSGMCommand             ss_gm_command               = 10004;
+        // 街机相关
+        WebNotifyUpdateConfig   web_notify_update_config    = 10017; // 通知配置刷新
+        WebReqPlayerLogin       web_req_player_login        = 10010; // 请求登录街机
+        WebRspPlayerLogin       web_rsp_player_login        = 10011;
+        WebReqPlayerBuyIn       web_req_player_buy_in       = 10012; // 请求街机投币
+        WebRspPlayerBuyIn       web_rsp_player_buy_in       = 10013;
+        WebNotifyDeleteMachine  web_notify_delete_machine   = 10030; // 删除街机
+        WebNotifyRestartMachine web_notify_restart_machine  = 10031; // 重启街机
+
+        // DB数据操作
+        WebNotifyPlayerInfo     web_notify_player_info      = 10014; // 通知玩家信息，昵称头像等
+        WebReqPlayerCharge      web_req_player_charge       = 10015; // 请求充值发货
+        WebRspPlayerCharge      web_rsp_player_charge       = 10016;
+        WebReqSubPrize          web_req_sub_prize           = 10024; // 扣礼品
+        WebRspSubPrize          web_rsp_sub_prize           = 10025;
+        WebReqQueryDBData       web_req_query_db_data       = 10018; // 查数据玩家
+        WebRspQueryDBData       web_rsp_query_db_data       = 10019;
+        WebReqSaveDBData        web_req_save_db_data        = 10020; // 改数据玩家
+        WebRspSaveDBData        web_rsp_save_db_data        = 10021;
+        WebReqQueryDBData       web_req_query_db_data_m     = 10026; // 查数据街机
+        WebRspQueryDBData       web_rsp_query_db_data_m     = 10027;
+        WebReqSaveDBData        web_req_save_db_data_m      = 10028; // 改数据街机
+        WebRspSaveDBData        web_rsp_save_db_data_m      = 10029;
+        WebReqQueryDBData       web_req_query_db_data_p     = 10032; // 查数据代理
+        WebRspQueryDBData       web_rsp_query_db_data_p     = 10033;
+        WebReqSaveDBData        web_req_save_db_data_p      = 10034; // 改数据代理
+        WebRspSaveDBData        web_rsp_save_db_data_p      = 10035;
+        WebReqQueryDBData       web_req_query_db_data_g     = 10036; // 查全局代理
+        WebRspQueryDBData       web_rsp_query_db_data_g     = 10037;
+        WebReqSaveDBData        web_req_save_db_data_g      = 10038; // 改全局代理
+        WebRspSaveDBData        web_rsp_save_db_data_g      = 10039;
+        WebNotifyPoint          web_notify_point            = 10040;
+    }
+}

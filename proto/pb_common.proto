@@ -1,0 +1,22 @@
+enum ENGameType
+{
+    EN_G_Type_Lipstick  = 1;
+}
+
+enum ENAwardType
+{
+    EN_Award_None       = 0; // 空
+    EN_Award_Gold       = 1; // 金币
+    EN_Award_Prize      = 2; // 礼品
+    EN_Award_Diamond    = 3; // 钻石
+    EN_Award_Prop       = 4; // 道具
+    EN_Award_Point      = 5; // 商城积分
+}
+message PBAward
+{
+    optional uint32         type        = 1;    // ENAwardType
+    optional uint64         id          = 2;
+    optional uint64         charge_num  = 3;    // 只有充值用此字段
+    optional uint64         giving_num  = 4;    // 其余奖励都算赠送
+}
+
